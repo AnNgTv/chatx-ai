@@ -18,18 +18,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: chatx-ai/package-lock.json
 
       - name: Install Dependencies
-        run: |
-          cd chatx-ai
-          npm install
+        run: npm install
 
       - name: Build Web App
-        run: |
-          cd chatx-ai
-          npm run build
+        run: npm run build
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -41,13 +35,11 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Capacitor Sync
-        run: |
-          cd chatx-ai
-          npx cap sync android
+        run: npx cap sync android
 
       - name: Build Android APK
         run: |
-          cd chatx-ai/android
+          cd android
           chmod +x gradlew
           ./gradlew assembleDebug --stacktrace
 
@@ -55,4 +47,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: chatx-ai-debug-apk
-          path: chatx-ai/android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
