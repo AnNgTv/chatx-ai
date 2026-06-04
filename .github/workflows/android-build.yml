@@ -1,0 +1,58 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/node-js@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: chatx-ai/package-lock.json
+
+      - name: Install Dependencies
+        run: |
+          cd chatx-ai
+          npm install
+
+      - name: Build Web App
+        run: |
+          cd chatx-ai
+          npm run build
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Capacitor Sync
+        run: |
+          cd chatx-ai
+          npx cap sync android
+
+      - name: Build Android APK
+        run: |
+          cd chatx-ai/android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: chatx-ai-debug-apk
+          path: chatx-ai/android/app/build/outputs/apk/debug/app-debug.apk
